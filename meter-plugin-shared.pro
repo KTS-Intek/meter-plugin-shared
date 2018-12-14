@@ -17,3 +17,5 @@ SOURCES += \
     $$PWD/shared/addmeterdatahelper.cpp \
     $$PWD/shared/findemptydate.cpp \
     $$PWD/shared/meterpluginhelper.cpp
+
+
