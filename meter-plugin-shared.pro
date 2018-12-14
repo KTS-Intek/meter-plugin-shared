@@ -19,3 +19,6 @@ SOURCES += \
     $$PWD/shared/meterpluginhelper.cpp
 
 
+
+
+
