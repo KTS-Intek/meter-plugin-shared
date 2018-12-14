@@ -9,15 +9,14 @@ INCLUDEPATH  += $$PWD\
 HEADERS += \
     $$PWD/shared/addmeterdatahelper.h \
     $$PWD/shared/findemptydate.h \
-    $$PWD/shared/meterplugin.h \
-    $$PWD/shared/meterpluginhelper.h \
-    $$PWD/shared/meterplugintypes.h
+    $$PWD/shared/meterpluginhelper.h
 
 SOURCES += \
     $$PWD/shared/addmeterdatahelper.cpp \
     $$PWD/shared/findemptydate.cpp \
     $$PWD/shared/meterpluginhelper.cpp
 
+include(../plugin-types/plugin-types.pro)
 
 
 
