@@ -17,10 +17,7 @@
 #define PLG_VER_1_3     12//13 - + sleep commands
 
 #define PLG_VER_RELEASE PLG_VER_1_3
-
-
-
-
+//a test line for nothing
 
 class MeterPlugin
 {
