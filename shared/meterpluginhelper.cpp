@@ -16,144 +16,8 @@ MeterPluginHelper::MeterPluginHelper(QObject *parent) : QObject(parent)
 {
 
 }
-//-----------------------------------------------------------------------------------
-void MeterPluginHelper::removeLineFromList(const QString &lPartOfline, QStringList &l)
-{
-    for(int i = 0, iMax = l.size(), left = lPartOfline.size(); i < iMax; i++){
-        if(l.at(i).left(left) == lPartOfline){
-            l.removeAt(i);
-            i--;
-            iMax--;
-        }
-    }
-}
-//-----------------------------------------------------------------------------------
-QStringList MeterPluginHelper::replaceLineFromList(const QString &lPartOfline, QStringList l, const QString &rPartOfLine)
-{
-
-    for(int i = 0, iMax = l.size(), left = lPartOfline.size(); i < iMax; i++){
-        if(l.at(i).left(left) == lPartOfline){
-            l.replace(i, lPartOfline + rPartOfLine);
-            return l;
-        }
-    }
-    l.append(lPartOfline + rPartOfLine);
-    return l;
-}
-//-----------------------------------------------------------------------------------
-QBitArray MeterPluginHelper::uint8ToBitArray(const quint8 &value)
-{
-    QByteArray byteArr;
-    byteArr.append(value);
-    QBitArray bitArr(8);
-
-    for(int i = 0, iMax = 1; i < iMax; ++i){
-        for(int b = 0; b < 8; ++b)
-            bitArr.setBit(i * 8 + b, byteArr.at(i) & (1 << b));
-    }
-
-    return bitArr;
-}
-
-//-----------------------------------------------------------------------------------
-QByteArray MeterPluginHelper::bitArrToByteArr(const QBitArray &bitArr, const bool &toHex)
-{
-    QByteArray byteArr(bitArr.count() / 8, 0x0);
-    int rightJustif = byteArr.size() * 2;
-
-    for(int b = 0, bMax = bitArr.count(); b < bMax; b++)
-        byteArr[(bMax - b - 1)/8] = (byteArr.at((bMax - b - 1)/8) | ((bitArr[b] ? 1 : 0) << (b%8)));
-
-    if(toHex)
-        return byteArr.toHex().rightJustified(rightJustif, '0');
-
-    return byteArr;
-}
 
 
-//-----------------------------------------------------------------------------------
-QBitArray MeterPluginHelper::byteArrayToBitArray(const QByteArray &byteArr)
-{
-    const int iMax = byteArr.size();
-    QBitArray bitArr(8 * iMax);
-
-    for(int i = 0; i < iMax; ++i){
-        for(int b = 0; b < 8; ++b)
-            bitArr.setBit(i * 8 + b, byteArr.at(iMax - i - 1) & (1 << b));
-    }
-    return bitArr;
-}
-
-
-
-//-----------------------------------------------------------------------------------
-QString MeterPluginHelper::prettyHexDump(const QList<quint8> &list, const quint8 &command)
-{
-    QByteArray arr;
-    for(int i = 0, iMax = list.size(); i < iMax; i++)
-        arr.append(list.at(i));
-    arr = arr.toHex();
-    QString str;
-    for(int i = 0, iMax = arr.size(); i < iMax; i += 2)
-        str.append(arr.mid(i,2) + " ");
-
-    if(!str.isEmpty())
-        str.chop(1);
-//    if(str.isEmpty())
-//        return "";
-
-    if(!str.isEmpty())
-        str.prepend(", D:");
-
-    str.prepend(", C:" + QString::number(command, 16).toUpper());
-    return  str.toUpper();
-}
-//-----------------------------------------------------------------------------------
-QString MeterPluginHelper::prettyHexDump(const QByteArray &messArrH, const QByteArray &commandH, const quint8 &errCode)
-{
-    QByteArray arr(messArrH);
-
-    QString str;
-    for(int i = 0, iMax = arr.size(); i < iMax; i += 2)
-        str.append(arr.mid(i,2) + " ");
-
-    if(!str.isEmpty())
-        str.chop(1);
-
-
-    if(!str.isEmpty())
-        str.prepend(", D:");
-
-    if(!commandH.isEmpty()){
-        str.prepend(", C:" + commandH.toUpper());
-        str.append(", E:" + QString::number(errCode, 16).toUpper());
-    }
-    return  str.toUpper();
-}
-//-----------------------------------------------------------------------------------
-QString MeterPluginHelper::prettyHexDump(QByteArray arr)//CE303 style
-{
-    arr = arr.toHex();
-    QString str;
-    for(int i = 0, iMax = arr.size(); i < iMax; i += 2)
-        str.append(arr.mid(i,2) + " ");
-
-    if(!str.isEmpty())
-        str.chop(1);
-    if(str.isEmpty())
-        return "";
-    str.prepend(", D:");
-
-    return  str.toUpper();
-}
-//-----------------------------------------------------------------------------------
-QDateTime MeterPluginHelper::tableName2DateTimeUTC(const QString &tableName, const qint32 addDays)
-{
-    if(tableName.mid(4,1) != "_")
-        return QDateTime( QDate::fromString(tableName.mid(4, 10), "yyyy_MM_dd"), QTime::fromString(tableName.right(5), "hh_mm"), Qt::UTC ).addDays(addDays);
-    else
-        return QDateTime( QDate::fromString(tableName.left(10), "yyyy_MM_dd"), QTime::fromString(tableName.right(5), "hh_mm"), Qt::UTC ).addDays(addDays);
-}
 //-----------------------------------------------------------------------------------
 QVariantHash MeterPluginHelper::addEvnt2hash(const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)
 {
@@ -194,29 +58,7 @@ QString MeterPluginHelper::nextMatildaEvntName(const QVariantHash &hashTmpData)
     }
     return QString("mev_%1").arg(QString::number(0xFFFF));//UC
 }
-//-----------------------------------------------------------------------------------
-QString MeterPluginHelper::prettyNumber(const qreal &val, int mPrec, const int &maxPlgPrec)
-{
-    if(mPrec < 1 || mPrec > maxPlgPrec)
-        return "";
 
-    QString s = QString::number(val, 'f', mPrec);
-    s = s.replace(",", ".");
-    if(s.isEmpty())
-        return s;
-    while(s.right(1) == "0")
-        s.chop(1);
-
-
-    if(s == "0." || s.isEmpty())
-        return "0";
-
-    if(s.right(1) == ".")
-        s.append("0");
-
-    return s;
-
-}
 //-----------------------------------------------------------------------------------
 qint32 MeterPluginHelper::calculateMonthAgo(const QDateTime &pollDateTimeL, bool &ok)
 {
@@ -249,96 +91,7 @@ QString MeterPluginHelper::errWarnKey(int &val, const bool &isErr)
 {
     return isErr ? QString("Error_%1").arg(val++) : QString("Warning_%1").arg(val++);
 }
-//-----------------------------------------------------------------------------------
-QList<quint8> MeterPluginHelper::strList2uint8List(const QStringList &l, const bool ommitBadData)
-{
-    QList<quint8> list;
-    for(int i = 0, iMax = l.size(); i < iMax; i++){
-        bool ok;
-        const quint8 v = quint8(l.at(i).toUInt(&ok));
-        if(ommitBadData && !ok)
-            continue;
-        list.append(v);
-    }
-    return list;
-}
-//-----------------------------------------------------------------------------------
-int MeterPluginHelper::uint8list2int(const QList<quint8> &meterMess, int startIndx, const int &len)
-{
-    int retVal = 0;
-    const int meterMessS = meterMess.size();
-    if(meterMessS > startIndx){
-        QByteArray arr;
-       for(int iMax = len + startIndx ; startIndx < meterMessS && startIndx < iMax; startIndx++)
-            arr.append( QByteArray::number(meterMess.at(startIndx), 16).rightJustified(2, '0') );
 
-        retVal = int(arr.toUInt(nullptr, 16));
-    }
-    return retVal;
-}
-
-QString MeterPluginHelper::uint8list2line(const QList<quint8> &meterMess, int startIndx, const int &len)
-{
-    QByteArray retVal;
-    const int meterMessS = meterMess.size();
-    if(meterMessS > startIndx){
-        for(int iMax = len + startIndx ; startIndx < meterMessS && startIndx < iMax; startIndx++)
-            retVal.append(meterMess.at(startIndx));
-    }
-    return QString(retVal);
-}
-//-----------------------------------------------------------------------------------
-QString MeterPluginHelper::uint8list2str(const QList<quint8> &meterMess, int startIndx, const int &len)
-{
-    QString retVal;
-    const int meterMessS = meterMess.size();
-    if(meterMessS > startIndx){
-        QByteArray arr;
-        for(int iMax = len + startIndx ; startIndx < meterMessS && startIndx < iMax; startIndx++)
-            arr.append( QByteArray::number(meterMess.at(startIndx), 16).rightJustified(2, '0') );
-
-        retVal = QString::number(arr.toULongLong(nullptr, 16));//8 bytes is the maximum
-    }
-    return retVal;
-}
-//-----------------------------------------------------------------------------------
-QByteArray MeterPluginHelper::uint8list2strH(const QList<quint8> &meterMess, int startIndx, const int &len)
-{
-    const int meterMessS = meterMess.size();
-    if(meterMessS > startIndx){
-        QByteArray arr;
-        for(int iMax = len + startIndx ; startIndx < meterMessS && startIndx < iMax; startIndx++)
-            arr.append( QByteArray::number(meterMess.at(startIndx), 16).rightJustified(2, '0') );
-
-        return arr;
-    }
-    return QByteArray();
-}
-//-----------------------------------------------------------------------------------
-int MeterPluginHelper::getIntValFromList(const QStringList &list, const QString &key, const int &defRetVal)
-{
-    for(int i = 0, iMax = list.size(), len = key.length(); i < iMax; i++){
-        if(list.at(i).left(len) == key){
-            bool ok;
-            int retVal = list.at(i).mid(len).toInt(&ok);
-            if(ok)
-                return retVal;
-
-        }
-    }
-    return defRetVal;
-}
-//-----------------------------------------------------------------------------------
-QByteArray MeterPluginHelper::intVal2arrH(const int &val, const int &rightJustif)
-{
-    return QByteArray::number(val, 16).rightJustified(rightJustif, '0');
-
-}
-//-----------------------------------------------------------------------------------
-QString MeterPluginHelper::intVal2strH(const int &val, const int &rightJustif)
-{
-    return QString::number(val, 16).rightJustified(rightJustif, '0');
-}
 //-----------------------------------------------------------------------------------
 QVariantHash MeterPluginHelper::oneTariff4json()
 {
@@ -555,11 +308,7 @@ int MeterPluginHelper::extendedDayProfile(QVariantHash &hashTmpData, QVariantHas
     hashTmpData.insert(plgName + "_lastDayProfileIndx", meterDayProfileCount);
     return meterDayProfileCount;
 }
-//-----------------------------------------------------------------------------------
-QByteArray MeterPluginHelper::hexArrFromNumber(const int &inVal, const int &byteCount, const int base )
-{
-    return QByteArray::number(inVal,base).rightJustified(byteCount * 2, '0');
-}
+
 //-----------------------------------------------------------------------------------
 int MeterPluginHelper::hoursInDay(QDateTime dateTimeL)
 {
@@ -634,26 +383,7 @@ QString MeterPluginHelper::prettyMess(const QString &mess, const QString &hexDum
     errwarn.lastIsErr = isErr;
     return messfull;
 }
-//-----------------------------------------------------------------------------------
-float MeterPluginHelper::hexstr2float(const QByteArray &arrh, bool &ok)
-{
-    union{
-        quint32 i;
-        float f;
-    } value;
-    value.i = arrh.toUInt(&ok, 16);// std::stoll(arrh.toStdString(), nullptr, 16);
-    return value.f;
-}
-//-----------------------------------------------------------------------------------
-double MeterPluginHelper::hexstr2double(const QByteArray &arrh, bool &ok)
-{
-    union{
-        quint64 i;
-        double d;
-    } value;
-    value.i = arrh.toULongLong(&ok, 16);// std::stoll(arrh.toStdString(), nullptr, 16);
-    return value.d;
-}
+
 //-----------------------------------------------------------------------------------
 quint8 MeterPluginHelper::ucmEvent2groupCode(const quint32 &ucmEventCode)
 {
@@ -1029,106 +759,6 @@ void MeterPluginHelper::copyHash2hashErrAndWarn(const QVariantHash &src, QVarian
 
 //-----------------------------------------------------------------------------------
 
-QByteArray MeterPluginHelper::convertData7ToData8(const QByteArray &readArr)
-{
-    const int iMax = readArr.size();
-    QByteArray arr(iMax, 0x0);
-
-    for(int i = 0; i < iMax; i++){
-        QBitArray bitArr(8);
-        for(int b = 0; b < 8; ++b)
-            bitArr.setBit(b, readArr.at(i) & (1 << b));
-
-        bitArr.setBit( 7, false);
-
-        for(int b = 0; b < 8; b++){
-            arr[i] = arr.at(i) | ((bitArr.at(b) ? 1 : 0) << (b%8));
-        }
-
-    }
-    return arr;
-
-}
-
-//-----------------------------------------------------------------------------------
-
-QByteArray MeterPluginHelper::convertData8ToData7(const QByteArray &writeArr)
-{
-    const int iMax = writeArr.size();
-    QByteArray arr(iMax, 0x0);
-
-    for(int i = 0; i < iMax; i++){
-        QBitArray bitArr(8);
-        int counter = 0;
-        for(int b = 0; b < 8; ++b){
-            bitArr.setBit(b, writeArr.at(i) & (1 << b));
-            if(bitArr.at(b) && b < 7)
-                counter++;
-        }
-
-        bool falseVal = true;
-        if(counter%2 == 0)
-            falseVal = false;
-
-        bitArr.setBit( 7, falseVal);
-
-        for(int b = 0; b < 8; b++){
-          arr[i] = arr.at(i) | ((bitArr.at(b) ? 1 : 0) << (b%8));
-        }
-    }
-    return arr;
-}
-
-//-----------------------------------------------------------------------------------
-
-QByteArray MeterPluginHelper::listUint8mid2arr(const QList<quint8> &meterMess, const int &startPos, const int &len)
-{   
-    return QByteArray::number(listUint8mid2arrMess(meterMess, startPos, len).toHex().toULongLong(0, 16)) ;
-}
-//-----------------------------------------------------------------------------------
-QByteArray MeterPluginHelper::listUint8mid2arrMess(const QList<quint8> &meterMess, const int &startPos, const int &len)
-{
-    QByteArray arr;
-    for(int i = startPos, iMax = meterMess.size(), l = 0; i < iMax && l != len; i++, l++)
-        arr.append(meterMess.at(i));
-    return arr;
-}
-
-//-----------------------------------------------------------------------------------
-
-qreal MeterPluginHelper::listUint8mid2real(const QList<quint8> &meterMess, const int &startPos, const int &len, const int &dotPos, const int isUnsigned, bool &ok)
-{
-    qreal dilnyk = 1.0;
-    for(int i = 0; i < dotPos; i++)
-        dilnyk *= 10;
-
-    bool ok1, ok2;
-
-//    QByteArray arrh = uint8list2strH(meterMess, startPos, len);
-
-
-    qint64 valInteger = listUint8mid2arr(meterMess, startPos, len).toLongLong(&ok1);
-    quint32 valUnsignedInteger = listUint8mid2arr(meterMess, startPos, len).toUInt(&ok2);
-
-    if(valInteger > 2147483647){
-//        qint64 v = 0xFFFFFFFF;
-        valInteger -= (qint64)0xFFFFFFFF;
-        valInteger--;
-    }
-
-    qreal val = 0;//
-    if(isUnsigned){
-        val = (qreal)valUnsignedInteger;
-    }else{
-        val = (qreal)valInteger;
-    }
-    val /= dilnyk;
-//    (qreal)( (isUnsigned != 0) ? valUnsignedInteger : valInteger) / dilnyk;//  (listUint8mid2arr(meterMess, startPos, len).toDouble(&ok) / dilnyk);
-    ok = isUnsigned ? ok2 : ok1;
-    return val;
-}
-//-----------------------------------------------------------------------------------
-
 
 QString MeterPluginHelper::getMeterVersion(const QVariantHash &hashTmpData, const QVariantHash &hashConstData)
 {
@@ -1225,6 +855,22 @@ bool MeterPluginHelper::isTime4updateSchedule(const QVariantHash &hashConstDataS
 bool MeterPluginHelper::isTime4updateScheduleHConstData(const QVariantHash &hashConstData, const QVariantHash &currentMeterSchedule)
 {
     return isTime4updateSchedule(hashConstData.value("sleepprofile").toHash(), currentMeterSchedule);
+}
+
+void MeterPluginHelper::addRelayStatus(QVariantHash &hashTmpData, const int &relayStts, const bool &isMain)
+{
+    if(isMain){
+
+        hashTmpData.insert("relay_all_power_on", (relayStts == RELAY_STATE_LOAD_ON));//old format
+        hashTmpData.insert("relay_0", relayStts);
+    }else
+        hashTmpData.insert("relay_1", relayStts);
+}
+
+void MeterPluginHelper::addRelayStatusAll(QVariantHash &hashTmpData, const int &mainstts, const int &secondarystts)
+{
+    addRelayStatus(hashTmpData, mainstts, true);
+    addRelayStatus(hashTmpData, secondarystts, false);
 }
 
 //-----------------------------------------------------------------------------------

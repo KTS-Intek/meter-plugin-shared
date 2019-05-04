@@ -1,3 +1,5 @@
+# Version=0.0.1
+#
 QT       += core
 
 linux-beagleboard-g++:{
@@ -16,7 +18,7 @@ SOURCES += \
     $$PWD/shared/findemptydate.cpp \
     $$PWD/shared/meterpluginhelper.cpp
 
-include(../plugin-types/plugin-types.pro)
+include(../plugin-types/plugin-types.pri)
 
 
 

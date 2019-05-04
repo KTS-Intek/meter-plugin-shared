@@ -29,23 +29,10 @@ class MeterPluginHelper : public QObject
 public:
     explicit MeterPluginHelper(QObject *parent = nullptr);
 
-     static  void removeLineFromList(const QString &lPartOfline, QStringList &l);
 
-     static  QStringList replaceLineFromList(const QString &lPartOfline, QStringList l, const QString &rPartOfLine);
 
-     static QBitArray uint8ToBitArray(const quint8 &value);
 
-     static QByteArray bitArrToByteArr(const QBitArray &bitArr, const bool &toHex);
 
-     static  QBitArray byteArrayToBitArray(const QByteArray &byteArr);
-
-     static QString prettyHexDump(const QList<quint8> &list, const quint8 &command);
-
-     static QString prettyHexDump(const QByteArray &messArrH, const QByteArray &commandH, const quint8 &errCode);
-
-     static QString prettyHexDump(QByteArray arr);
-
-     static QDateTime tableName2DateTimeUTC(const QString &tableName, const qint32 addDays = 0) ;
 
      static QVariantHash addEvnt2hash(const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)  ;
 
@@ -55,28 +42,12 @@ public:
 
      static QString nextMatildaEvntName(const QVariantHash &hashTmpData)  ;
 
-     static QString prettyNumber(const qreal &val, int mPrec, const int &maxPlgPrec) ;
 
      static qint32 calculateMonthAgo(const QDateTime &pollDateTimeL, bool &ok) ;
 
 
      static QString errWarnKey(int &val, const bool &isErr);
 
-     static QList<quint8> strList2uint8List(const QStringList &l, const bool ommitBadData = true);
-
-     static int uint8list2int(const QList<quint8> &meterMess, int startIndx, const int &len);
-
-     static QString uint8list2line(const QList<quint8> &meterMess, int startIndx, const int &len);
-
-     static QString uint8list2str(const QList<quint8> &meterMess, int startIndx, const int &len);
-
-     static QByteArray uint8list2strH(const QList<quint8> &meterMess, int startIndx, const int &len);
-
-     static int getIntValFromList(const QStringList &list, const QString &key, const int &defRetVal);
-
-     static QByteArray intVal2arrH(const int &val, const int &rightJustif);
-
-     static QString intVal2strH(const int &val, const int &rightJustif);
 
      static QVariantHash oneTariff4json();
 
@@ -89,7 +60,6 @@ public:
 
      static int extendedDayProfile(QVariantHash &hashTmpData, QVariantHash &hash4json, const QString &plgName);
 
-     static QByteArray hexArrFromNumber(const int &inVal, const int &byteCount, const int base = 10);
 
 
      static int hoursInDay(QDateTime dateTimeL);
@@ -104,9 +74,7 @@ public:
 
      static QString prettyMess(const QString &mess, const QString &hexDump, const bool &isErr, ErrsStrct &errwarn);
 
-     static float hexstr2float(const QByteArray &arrh, bool &ok);
 
-     static double hexstr2double(const QByteArray &arrh, bool &ok);
 
 
      static quint8 ucmEvent2groupCode(const quint32 &ucmEventCode);
@@ -119,16 +87,7 @@ public:
 
      static void copyHash2hashErrAndWarn(const QVariantHash &src, QVariantHash &hashDest);
 
-     static QByteArray convertData7ToData8(const QByteArray &readArr);
 
-     static QByteArray convertData8ToData7(const QByteArray &writeArr);
-
-     static QByteArray listUint8mid2arr(const QList<quint8> &meterMess, const int &startPos, const int &len);
-
-     static QByteArray listUint8mid2arrMess(const QList<quint8> &meterMess, const int &startPos, const int &len);
-
-
-     static qreal listUint8mid2real(const QList<quint8> &meterMess, const int &startPos, const int &len, const int &dotPos, const int isUnsigned, bool &ok);
 
      static QString getMeterVersion(const QVariantHash &hashTmpData, const QVariantHash &hashConstData);
 
@@ -141,6 +100,11 @@ public:
      static bool isTime4updateSchedule(const QVariantHash &hashConstDataSchedule, const QVariantHash &currentMeterSchedule);
 
      static bool isTime4updateScheduleHConstData(const QVariantHash &hashConstData, const QVariantHash &currentMeterSchedule);
+
+     static void addRelayStatus(QVariantHash &hashTmpData, const int &relayStts, const bool &isMain);
+
+     static void addRelayStatusAll(QVariantHash &hashTmpData, const int &mainstts, const int &secondarystts);
+
 
 signals:
 

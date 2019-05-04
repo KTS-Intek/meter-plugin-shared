@@ -319,7 +319,7 @@ ListEmptyVals FindEmptyDate::getEmptyDates4endOfDay(QVariantHash &hashTmpData, c
     for(int i = 0, lastStartDayIndx = startFromDateIndx; i < limit; i++){
         const EmptyValDtEnrgTrf v = getEmptyDate(hashTmpData, hashConstData, listValKeys, params, lastStartDayIndx, l.isEmpty() ? EmptyValDtEnrgTrf() : l.last(), groupBy);//if -1, the first time,  check for Old period
         if(!v.dt.isValid()){
-            qDebug() << "FindEmptyDate::getEmptyDates4endOfDay " << v.dt << hashConstData.value("NI").toString() ;
+            qDebug() << "FindEmptyDate::getEmptyDates4endOfDay " << v.dt << hashConstData.value("ModemNI").toString() ;
             break;//no value
         }
 
@@ -334,7 +334,7 @@ ListEmptyVals FindEmptyDate::getEmptyDates4endOfDay(QVariantHash &hashTmpData, c
 
     }
     if(l.isEmpty()){
-        qDebug() << "FindEmptyDate::getEmptyDates4endOfDay no data " << hashConstData.value("NI").toString() << listValKeys << maxDayMonthAgo << hasQuadrants;
+        qDebug() << "FindEmptyDate::getEmptyDates4endOfDay no data " << hashConstData.value("ModemNI").toString() << listValKeys << maxDayMonthAgo << hasQuadrants;
 
     }
     return l;
