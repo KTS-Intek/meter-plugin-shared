@@ -36,4 +36,19 @@ int AddMeterDataHelper::fullEmptyCells(ListEmptyValsCache &cache, QVariantHash &
     return counter;
 }
 
+void AddMeterDataHelper::insertNotSupValues2hash(const QString &prefics, const QString &enrg, const int &trffs, QVariantHash &hash)
+{
+    insertStatuses2hash(prefics, enrg, trffs, "!", hash);
+
+}
+
+void AddMeterDataHelper::insertStatuses2hash(const QString &prefics, const QString &enrg, const int &trffs, const QString &stts, QVariantHash &hash)
+{
+    if(enrg.isEmpty() || stts.isEmpty())
+        return;//it is impossible
+    const QString fullprefics = prefics.isEmpty() ? QString() : QString("%1_").arg(prefics);
+    for(int i = 0; i <= trffs; i++)
+        hash.insert(QString("%1T%2_%3").arg(fullprefics).arg(i).arg(enrg), stts);
+}
+
 //-------------------------------------------------------------------------------------------------------------

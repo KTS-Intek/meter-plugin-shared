@@ -287,7 +287,7 @@ int FindEmptyDate::maxAddIntervalCount4timeCoefitient(const quint8 &timeCoefitie
 TrffEnrgPair FindEmptyDate::getTariffEnrgPair(const QString &trffEnrg)
 {
     const QString enrg = trffEnrg.split("_").last();
-    bool ok;
+    bool ok = false;
     const quint8  trff = trffEnrg.startsWith("T") ? trffEnrg.mid(1,1).toUInt(&ok) : 0xFF; //enrg.toUInt()
     return TrffEnrgPair(enrg.isEmpty() ? "A+" : enrg, ok ? trff : 0xFF);
 

@@ -58,7 +58,7 @@ public:
 
      static QVariantHash hash4jsonTariff(const QVariantHash &hashTmpData, const int &lastDayProfileIndxD, const int &seasonMax, const QString &plgName);
 
-     static int extendedDayProfile(QVariantHash &hashTmpData, QVariantHash &hash4json, const QString &plgName);
+     static int extendedDayProfile(QVariantHash &hashTmpData, const QVariantHash &hash4json, const QString &plgName);
 
 
 

@@ -295,7 +295,7 @@ jObj["DR2"] = "T1{08:00-11:00, 20:00-23:00}; T2{07:00-08:00, 11:00-20:00, 23:00-
     return hash4json;
 }
 //-----------------------------------------------------------------------------------
-int MeterPluginHelper::extendedDayProfile(QVariantHash &hashTmpData, QVariantHash &hash4json, const QString &plgName)//MTX || CE303
+int MeterPluginHelper::extendedDayProfile(QVariantHash &hashTmpData, const QVariantHash &hash4json, const QString &plgName)//MTX || CE303
 {
     QStringList list; //.clear();
     for( int meterDayProfileCount = TRFF_MIN_DAYPROFILE; meterDayProfileCount < TRFF_MAX_DAYPROFILE; meterDayProfileCount++){
@@ -303,7 +303,7 @@ int MeterPluginHelper::extendedDayProfile(QVariantHash &hashTmpData, QVariantHas
             list.append(hash4json.value(QString("DR%1").arg(meterDayProfileCount)).toString());
     }
 
-    int meterDayProfileCount = list.size();
+    const int meterDayProfileCount = list.size();
     hashTmpData.insert(plgName + "_meterDayProfile_mas", list);
     hashTmpData.insert(plgName + "_lastDayProfileIndx", meterDayProfileCount);
     return meterDayProfileCount;
@@ -391,198 +391,222 @@ quint8 MeterPluginHelper::ucmEvent2groupCode(const quint32 &ucmEventCode)
     switch (ucmEventCode) {
 
     ///MTX3 Section
-    case UCM_EV_ENRG_T1_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x01 //значення накоплюючих регістрів тарифу 1 втрачені
-    case UCM_EV_ENRG_T2_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x02 //значення накоплюючих регістрів тарифу 2 втрачені
-    case UCM_EV_ENRG_T3_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x03 //значення накоплюючих регістрів тарифу 3 втрачені
-    case UCM_EV_ENRG_T4_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x04 //значення накоплюючих регістрів тарифу 4 втрачені
-    case UCM_EV_ACCESS_LOCKED        : localEvntCode = ZBR_EVENT_ACCESS              ; break;  //0x11  //доступ закритий до кінця доби із-за помилки ключа доступу
-    case UCM_EV_ACCESS_UNLOCKED      : localEvntCode = ZBR_EVENT_ACCESS              ; break;  //0x12  //доступ відкритий ( була помилки ключа доступу)
-    case UCM_EV_ERR_ACCESS           : localEvntCode = ZBR_EVENT_ACCESS              ; break;  //0x13 //Неправильний ключ
-    case UCM_EV_CASE_OPEN            : localEvntCode = ZBR_EVENT_METER_OPEN          ; break;  //0x14 //Корпус лічильника відкритий
-    case UCM_EV_CASE_CLOSE           : localEvntCode = ZBR_EVENT_METER_OPEN          ; break;  //0x15 //Корпус лічильника закритий
-    case UCM_EV_MAGNETIC_ON          : localEvntCode = ZBR_EVENT_MAGNET              ; break;  //0x16 //виявлено наявність впливу постійного магнітного поля
-    case UCM_EV_MAGNETIC_OFF         : localEvntCode = ZBR_EVENT_MAGNET              ; break;  //0x17 //виявлено закінчення впливу постійного магнітного поля
-    case UCM_EV_CHANGE_ACCESS_KEY_0  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x20 //Ключ доступу рівня 0 змінено
-    case UCM_EV_CHANGE_ACCESS_KEY_1  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x21 //Ключ доступу рівня 1 змінено
-    case UCM_EV_CHANGE_ACCESS_KEY_2  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x22 //Ключ доступу рівня 2 змінено
-    case UCM_EV_CHANGE_ACCESS_KEY_3  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x23 //Ключ доступу рівня 3 змінено
-    case UCM_EV_CHANGE_PAR_LOCAL     : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x24 //параметри змінено локально
-    case UCM_EV_CHANGE_PAR_REMOTE    : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x25 //параметри змінено локально !!!???
-    case UCM_EV_CMD_CHANGE_TIME      : localEvntCode = ZBR_EVENT_DATETIME_CORRECTED  ; break;  //0x26 //отримана команда зміни часу, час змінено
-    case UCM_EV_CMD_RELAY_ON         : localEvntCode = ZBR_EVENT_RELAY               ; break;  //0x27 //отримана команда увімкнення реле
-    case UCM_EV_CMD_RELAY_OFF        : localEvntCode = ZBR_EVENT_RELAY               ; break;  //0x28 //отримана команда вимкнення реле
-    case UCM_EV_ENERGY_REG_OVERFLOW  : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x31 //переповнення накоплюючого регістру енергії
-    case UCM_EV_CHANGE_TARIFF_TBL    : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x32 //тарифний план змінено
-    case UCM_EV_SET_TARIFF_TBL       : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x33 //отриманий новий тарифний план
-    case UCM_EV_SUMMER_TIME          : localEvntCode = ZBR_EVENT_DST_STATE_CHANGED   ; break;  //0x34 //прехід на літній час
-    case UCM_EV_WINTER_TIME          : localEvntCode = ZBR_EVENT_DST_STATE_CHANGED   ; break;  //0x35 //перехід на зимовий час
-    case UCM_EV_RELAY_ON             : localEvntCode = ZBR_EVENT_RELAY               ; break;  //0x36 //реле вимкнено
-    case UCM_EV_RELAY_OFF            : localEvntCode = ZBR_EVENT_RELAY               ; break;  //0x37 //реле умвімкнено
-    case UCM_EV_RESTART              : localEvntCode = ZBR_EVENT_METER_ONOFF         ; break;  //0x38 //рестарт ПЗ контролера
-    case UCM_EV_WD_RESTART           : localEvntCode = ZBR_EVENT_METER_ONOFF         ; break;  //0x39 //рестарт по Сторожовику
-    case UCM_EV_VA_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x40 //Відновлення нормальної напруги L1 після підвищеної напруги
-    case UCM_EV_VA_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x41 //напруга L1 вище порогу максимальної напруги
-    case UCM_EV_VA_MIN_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x42 //Відновлення нормальної напруги L1 після пониженої напруги
-    case UCM_EV_VA_MIN_UNDER         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x43 //Напруга L1 нище порогу мінімальної напруги
-    case UCM_EV_VB_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x44 //Відновлення нормальної напруги L2 після підвищеної напруги
-    case UCM_EV_VB_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x45 //напруга L2 вище порогу максимальної напруги
-    case UCM_EV_VB_MIN_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x46 //Відновлення нормальної напруги L2 після пониженої напруги
-    case UCM_EV_VB_MIN_UNDER         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x47 //Напруга L2 нище порогу мінімальної напруги
-    case UCM_EV_VC_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x48 //Відновлення нормальної напруги L3 після підвищеної напруги
-    case UCM_EV_VC_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x49 //напруга L3 вище порогу максимальної напруги
-    case UCM_EV_VC_MIN_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x4A //Відновлення нормальної напруги L3 після пониженої напруги
-    case UCM_EV_VC_MIN_UNDER         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x4B //Напруга L3 нище порогу мінімальної напруги
-    case UCM_EV_F_MAX_OK             : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x4C //Відновлення нормальної частоти після підвищеної
-    case UCM_EV_F_MAX_OVER           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x4D //Частота вижче порогу нормальної
-    case UCM_EV_F_MIN_OK             : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x4E //Відновлення нормальної частоти після пониженої
-    case UCM_EV_F_MIN_UNDER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x4F //Частора нижче порогу нормальної
-    case UCM_EV_T_MAX_OK             : localEvntCode = ZBR_EVENT_CLIMAT              ; break;  //0x50 //Відновлення нормальної температури після підвищеної
-    case UCM_EV_T_MAX_OVER           : localEvntCode = ZBR_EVENT_CLIMAT              ; break;  //0x51 //Температура вище порогу максильної температури
-    case UCM_EV_T_MIN_OK             : localEvntCode = ZBR_EVENT_CLIMAT              ; break;  //0x52 //Відновлення нормальної температури після пониженої
-    case UCM_EV_T_MIN_UNDER          : localEvntCode = ZBR_EVENT_CLIMAT              ; break;  //0x53 //Температура нижче порогу нормальної
-    case UCM_EV_IA_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x54 //Відновлення допустимого струму L1 після підвищеного
-    case UCM_EV_IA_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x55 //Струм L1 вище порогу допустимого
-    case UCM_EV_IB_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x56 //Відновлення допустимого струму L2 після підвищеного
-    case UCM_EV_IB_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x57 //Струм L2 вище порогу допустимого
-    case UCM_EV_IC_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x58 //Відновлення допустимого струму L3 після підвищеного
-    case UCM_EV_IC_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x59 //Струм L3 вище порогу допустимого
-    case UCM_EV_PA_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x5A //Відновлення допустимої активної споживаної потужності після підвищеної
-    case UCM_EV_PA_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x5B //Активна споживана потужність вище максимальної
-    case UCM_EV_PV_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x5C //Відновлення допустимої реактивної споживаної потужності після підвищеної
-    case UCM_EV_PV_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x5D //Реактивна спожива потужність вище максимальної
-    case UCM_EV_IDIFF_OK             : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x5E //Відновлення допустимого дифференціального струму
-    case UCM_EV_IDIFF_OVER           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x5F //Перевищення допустимого дифференціального струму
-    case UCM_EV_CLOCK_OK             : localEvntCode = ZBR_EVENT_HARDWARE            ; break;  //0x60 //Нормальний стан RTC відновлено
-    case UCM_EV_CLOCK_FAULT          : localEvntCode = ZBR_EVENT_HARDWARE            ; break;  //0x61 //RTC не встановлені
-    case UCM_EV_POWER_C_ON           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x62 //Увімкнення напруги L3
-    case UCM_EV_POWER_C_OFF          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x63 //Вимкнення напруги L3
-    case UCM_EV_POWER_B_ON           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x64 //Увімкнення напруги Фази В
-    case UCM_EV_POWER_B_OFF          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x65 //Вимкнення напруги Фази В
-    case UCM_EV_POWER_A_ON           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x66 //Увімкнення напруги L1
-    case UCM_EV_POWER_A_OFF          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;  //0x67 //Вимкнення напруги L1
-    case UCM_EV_BAT_OK               : localEvntCode = ZBR_EVENT_HARDWARE            ; break;  //0x68 //Відновлення нормальної напруги батареї RTC
-    case UCM_EV_BAT_FAULT            : localEvntCode = ZBR_EVENT_HARDWARE            ; break;  //0x69 //Понижена напруга батареї RTC
-    case UCM_EV_CAL_OK               : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x6A //Параметри калібровки встановлені
-    case UCM_EV_CAL_FAULT            : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x6B //Калібровочні параметри втрачені
-    case UCM_EV_V_PAR_OK             : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;
-    case UCM_EV_V_PAR_FAULT          : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x6D //Заводські параметри втрачено
-    case UCM_EV_O_PAR_OK             : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x6E //Параметри встановлено
-    case UCM_EV_O_PAR_FAULT          : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x6F //Параметри втрачено
-    case UCM_EV_CHANGE_COR_TIME      : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x70 //Змінено параметри переходу на літній час
-    case UCM_EV_CMD_RELAY_2_ON       : localEvntCode = ZBR_EVENT_RELAY               ; break;   //0x71 //Включення другого реле
-    case UCM_EV_CMD_RELAY_2_OFF      : localEvntCode = ZBR_EVENT_RELAY               ; break;   //0x72 //Вимкнення другого реле
-    case UCM_EV_CRSSZERO_ENT1        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x73 //Перехід через 0 лічильника активної енергії по тарифу 1 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_ENT2        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x74 //Перехід через 0 лічильника активної енергії по тарифу 2 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_ENT3        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x75 //Перехід через 0 лічильника активної енергії по тарифу 3 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_ENT4        : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x76 //Перехід через 0 лічильника активної енергії по тарифу 4 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_VARi1       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x77 //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 1 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_VARi2       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x78 //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 2 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_VARi3       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;   //0x79 //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 3 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_VARi4       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x7A //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 4 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_VARe1       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x7B //Перехід через 0 лічильника негативної реактивної енергії по тарифу 1 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_VARe2       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x7C //Перехід через 0 лічильника негативної реактивної енергії по тарифу 2 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_VARe3       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x7D //Перехід через 0 лічильника негативної реактивної енергії по тарифу 3 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_VARe4       : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0x7E //Перехід через 0 лічильника негативної реактивної енергії по тарифу 4 при досягненні 1000000.00 кВар
-    case UCM_EV_CALFLAG_SET          : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x7F //Калібровочний біт встановлено
-    case UCM_EV_CALFLAG_RESET        : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x80 //Калібровочний біт скинено
-    case UCM_EV_BAD_TEST_EEPROM      : localEvntCode = ZBR_EVENT_HARDWARE            ; break;   //0x81 //Тест EEPROM не пройшов
-    case UCM_EV_BAD_TEST_FRAM        : localEvntCode = ZBR_EVENT_HARDWARE            ; break;   //0x82 //Тест FRAM не пройшов
-    case UCM_EV_SET_NEW_SALDO        : localEvntCode = ZBR_EVENT_BILLING             ; break;  //0x83 //Отримана нова передоплата
-    case UCM_EV_SALDO_PARAM_BAD      : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x84 //Параметри сальдо втрачені
-    case UCM_EV_ACCPARAM_BAD         : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x85 //Акумуляційні параметри втрачено
-    case UCM_EV_ACCPARAM_EXT_BAD     : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x86 //Додаткові акумуляційні параметри втрачено
-    case UCM_EV_CALC_PERIOD_BAD      : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x87 //Дані розрахункових періодів втрачено
-    case UCM_EV_BLOCK_TARIF_BAD      : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x88 //Параметри блочних тарифів втрачено
-    case UCM_EV_CALIBR_PARAM_BAD     : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x89 //Значення калібровочних параметрів втрачено
-    case UCM_EV_WINTER_SUMMER_BAD    : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x8A //Значення параметру переходу на зимовий/літній час втрачено
-    case UCM_EV_OP_PARAM_BAD         : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x8B //Операторські параметри втрачено
-    case UCM_EV_OP_PARAM_EXT_BAD     : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x8C //Операторські параметри 2 втрачено
-    case UCM_EV_SALDO_EN_BAD         : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break;  //0x8D //Значення енергій для розрахунку сальдо втрачено
-    case UCM_EV_TIME_CORRECT         : localEvntCode = ZBR_EVENT_DATETIME_CORRECTED  ; break;  //0x8E //Коррекція часу
-    case UCM_EV_COEFF_TRANSF_CHANGE  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x8F //Змінено коефіцієнти трансформації
-    case UCM_EV_RELAY_HARD_BAD_OFF   : localEvntCode = ZBR_EVENT_RELAY               ; break;   //0x90 //Реле вимкнено механічно
-    case UCM_EV_RELAY_HARD_ON        : localEvntCode = ZBR_EVENT_RELAY               ; break;   //0x91 //Реле увімкнено після механічного впливу. Відновлено стан реле
-    case UCM_EV_RELAY_HARD_BAD_ON    : localEvntCode = ZBR_EVENT_RELAY               ; break;   //0x93 //Реле увімкнено механічно
-    case UCM_EV_RELAY_HARD_OFF       : localEvntCode = ZBR_EVENT_RELAY               ; break;   //0x94 //Реле вимкнено після механічного впливу. Відновлено стан реле
-    case UCM_EV_METER_TROUBLE        : localEvntCode = ZBR_EVENT_INTERNAL_ERROR      ; break;   //0x95 //Збій лічильника
-    case UCM_EV_CASE_KLEMA_OPEN      : localEvntCode = ZBR_EVENT_KLEMA_OPEN          ; break;   //0x96 //Клемна коробка лічильника відкрита
-    case UCM_EV_CASE_KLEMA_CLOSE     : localEvntCode = ZBR_EVENT_KLEMA_OPEN          ; break;   //0x97 //Клемна коробка лічильника закрита
-    case UCM_EV_CHANGE_TARIFF_TBL_2  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x98 //Тарифний план 2 змінено
-    case UCM_EV_CHANGE_TARIFF_TBL_3  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x99 //Тарифний план 3 змінено
-    case UCM_EV_CASE_MODULE_OPEN     : localEvntCode = ZBR_EVENT_MODULE_OPEN         ; break;  //0x9A //Відсік модуля лічильника відкрито
-    case UCM_EV_CASE_MODULE_CLOSE    : localEvntCode = ZBR_EVENT_MODULE_OPEN         ; break;  //0x9B //Відсік модуля лічильника закрито
-    case UCM_EV_SET_SALDO_PARAM      : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x9C //Параметри сальдо встановлено
-    case UCM_EV_POWER_OVER_RELAY_OFF : localEvntCode = ZBR_EVENT_RELAY               ; break;   //0x9D //Викнення реле після перевищення активної потужності (Версія ПЗ >= 302.15.001)
-    case UCM_EV_CHANGE_PARAM_CANAL1  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x9E //Змінено параметр профіля навантаження 1 (Версія ПЗ >= 302.17.001)
-    case UCM_EV_CHANGE_PARAM_CANAL2  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0x9F //Змінено парамтер профіля навантаження 2
-    case UCM_EV_CHANGE_PARAM_CANAL3  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0xA0 //Змінено параметр профіля навантаження 3
-    case UCM_EV_CHANGE_PARAM_CANAL4  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0xA1 //Змінено параметр профіля навантаження 4
-    case UCM_EV_CHANGE_PARAM_CANAL5  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0xA2 //Змінено параметр профіля навантаження 5
-    case UCM_EV_CHANGE_PARAM_CANAL6  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break;  //0xA3 //Змінено параметр профіля навантаження 6
-    case UCM_EV_CRSSZERO_EXP_ENT1    : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xA4 //Перехід через 0 лічильника активної експортної енергії по тарифу 1 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_EXP_ENT2    : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xA5 //Перехід через 0 лічильника активної експортної енергії по тарифу 2 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_EXP_ENT3    : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xA6 //Перехід через 0 лічильника активної експортної енергії по тарифу 3 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_EXP_ENT4    : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xA7 //Перехід через 0 лічильника активної експортної енергії по тарифу 4 при досягненні 1000000.00 кВт
-    case UCM_EV_CRSSZERO_EXP_VARi1   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xA8 //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 1 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_EXP_VARi2   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xA9 //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 2 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_EXP_VARi3   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xAA //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 3 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_EXP_VARi4   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xAB //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 4 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_EXP_VARe1   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;   //0xAC //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 1 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_EXP_VARe2   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xAD //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 2 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_EXP_VARe3   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xAE //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 3 при досягненні 1000000.00 кВар
-    case UCM_EV_CRSSZERO_EXP_VARe4   : localEvntCode = ZBR_EVENT_METERING_EV         ; break;  //0xAF //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 4 при досягненні 1000000.00 кВар
-    case UCM_EV_EM_MAGNETIC_ON       : localEvntCode = ZBR_EVENT_MAGNET              ; break;   //0xB0 //Виявлено наявність впливу змінного магнітного поля
-    case UCM_EV_EM_MAGNETIC_OFF      : localEvntCode = ZBR_EVENT_MAGNET              ; break;   //0xB1 //Виявлено закінчення впливу змінного магнітного поля
+    case UCM_EV_ENRG_T1_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x01 //значення накоплюючих регістрів тарифу 1 втрачені
+    case UCM_EV_ENRG_T2_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x02 //значення накоплюючих регістрів тарифу 2 втрачені
+    case UCM_EV_ENRG_T3_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x03 //значення накоплюючих регістрів тарифу 3 втрачені
+    case UCM_EV_ENRG_T4_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x04 //значення накоплюючих регістрів тарифу 4 втрачені
+    case UCM_EV_ACCESS_LOCKED        : localEvntCode = ZBR_EVENT_ACCESS            ; break;  //0x11  //доступ закритий до кінця доби із-за помилки ключа доступу
+    case UCM_EV_ACCESS_UNLOCKED      : localEvntCode = ZBR_EVENT_ACCESS            ; break;  //0x12  //доступ відкритий ( була помилки ключа доступу)
+    case UCM_EV_ERR_ACCESS           : localEvntCode = ZBR_EVENT_ACCESS            ; break;  //0x13 //Неправильний ключ
+    case UCM_EV_CASE_OPEN            : localEvntCode = ZBR_EVENT_METER_OPEN        ; break;  //0x14 //Корпус лічильника відкритий
+    case UCM_EV_CASE_CLOSE           : localEvntCode = ZBR_EVENT_METER_OPEN        ; break;  //0x15 //Корпус лічильника закритий
+    case UCM_EV_MAGNETIC_ON          : localEvntCode = ZBR_EVENT_MAGNET            ; break;  //0x16 //виявлено наявність впливу постійного магнітного поля
+    case UCM_EV_MAGNETIC_OFF         : localEvntCode = ZBR_EVENT_MAGNET            ; break;  //0x17 //виявлено закінчення впливу постійного магнітного поля
+    case UCM_EV_CHANGE_ACCESS_KEY_0  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x20 //Ключ доступу рівня 0 змінено
+    case UCM_EV_CHANGE_ACCESS_KEY_1  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x21 //Ключ доступу рівня 1 змінено
+    case UCM_EV_CHANGE_ACCESS_KEY_2  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x22 //Ключ доступу рівня 2 змінено
+    case UCM_EV_CHANGE_ACCESS_KEY_3  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x23 //Ключ доступу рівня 3 змінено
+    case UCM_EV_CHANGE_PAR_LOCAL     : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x24 //параметри змінено локально
+    case UCM_EV_CHANGE_PAR_REMOTE    : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x25 //параметри змінено локально !!!???
+    case UCM_EV_CMD_CHANGE_TIME      : localEvntCode = ZBR_EVENT_DATETIME_CORRECTED; break;  //0x26 //отримана команда зміни часу, час змінено
+    case UCM_EV_CMD_RELAY_ON         : localEvntCode = ZBR_EVENT_RELAY             ; break;  //0x27 //отримана команда увімкнення реле
+    case UCM_EV_CMD_RELAY_OFF        : localEvntCode = ZBR_EVENT_RELAY             ; break;  //0x28 //отримана команда вимкнення реле
+    case UCM_EV_ENERGY_REG_OVERFLOW  : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x31 //переповнення накоплюючого регістру енергії
+    case UCM_EV_CHANGE_TARIFF_TBL    : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x32 //тарифний план змінено
+    case UCM_EV_SET_TARIFF_TBL       : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x33 //отриманий новий тарифний план
+    case UCM_EV_SUMMER_TIME          : localEvntCode = ZBR_EVENT_DST_STATE_CHANGED ; break;  //0x34 //прехід на літній час
+    case UCM_EV_WINTER_TIME          : localEvntCode = ZBR_EVENT_DST_STATE_CHANGED ; break;  //0x35 //перехід на зимовий час
+    case UCM_EV_RELAY_ON             : localEvntCode = ZBR_EVENT_RELAY             ; break;  //0x36 //реле вимкнено
+    case UCM_EV_RELAY_OFF            : localEvntCode = ZBR_EVENT_RELAY             ; break;  //0x37 //реле умвімкнено
+    case UCM_EV_RESTART              : localEvntCode = ZBR_EVENT_METER_ONOFF       ; break;  //0x38 //рестарт ПЗ контролера
+    case UCM_EV_WD_RESTART           : localEvntCode = ZBR_EVENT_METER_ONOFF       ; break;  //0x39 //рестарт по Сторожовику
+    case UCM_EV_VA_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x40 //Відновлення нормальної напруги L1 після підвищеної напруги
+    case UCM_EV_VA_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x41 //напруга L1 вище порогу максимальної напруги
+    case UCM_EV_VA_MIN_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x42 //Відновлення нормальної напруги L1 після пониженої напруги
+    case UCM_EV_VA_MIN_UNDER         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x43 //Напруга L1 нище порогу мінімальної напруги
+    case UCM_EV_VB_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x44 //Відновлення нормальної напруги L2 після підвищеної напруги
+    case UCM_EV_VB_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x45 //напруга L2 вище порогу максимальної напруги
+    case UCM_EV_VB_MIN_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x46 //Відновлення нормальної напруги L2 після пониженої напруги
+    case UCM_EV_VB_MIN_UNDER         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x47 //Напруга L2 нище порогу мінімальної напруги
+    case UCM_EV_VC_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x48 //Відновлення нормальної напруги L3 після підвищеної напруги
+    case UCM_EV_VC_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x49 //напруга L3 вище порогу максимальної напруги
+    case UCM_EV_VC_MIN_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x4A //Відновлення нормальної напруги L3 після пониженої напруги
+    case UCM_EV_VC_MIN_UNDER         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x4B //Напруга L3 нище порогу мінімальної напруги
+    case UCM_EV_F_MAX_OK             : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x4C //Відновлення нормальної частоти після підвищеної
+    case UCM_EV_F_MAX_OVER           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x4D //Частота вижче порогу нормальної
+    case UCM_EV_F_MIN_OK             : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x4E //Відновлення нормальної частоти після пониженої
+    case UCM_EV_F_MIN_UNDER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x4F //Частора нижче порогу нормальної
+    case UCM_EV_T_MAX_OK             : localEvntCode = ZBR_EVENT_CLIMAT            ; break;  //0x50 //Відновлення нормальної температури після підвищеної
+    case UCM_EV_T_MAX_OVER           : localEvntCode = ZBR_EVENT_CLIMAT            ; break;  //0x51 //Температура вище порогу максильної температури
+    case UCM_EV_T_MIN_OK             : localEvntCode = ZBR_EVENT_CLIMAT            ; break;  //0x52 //Відновлення нормальної температури після пониженої
+    case UCM_EV_T_MIN_UNDER          : localEvntCode = ZBR_EVENT_CLIMAT            ; break;  //0x53 //Температура нижче порогу нормальної
+    case UCM_EV_IA_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x54 //Відновлення допустимого струму L1 після підвищеного
+    case UCM_EV_IA_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x55 //Струм L1 вище порогу допустимого
+    case UCM_EV_IB_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x56 //Відновлення допустимого струму L2 після підвищеного
+    case UCM_EV_IB_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x57 //Струм L2 вище порогу допустимого
+    case UCM_EV_IC_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x58 //Відновлення допустимого струму L3 після підвищеного
+    case UCM_EV_IC_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x59 //Струм L3 вище порогу допустимого
+    case UCM_EV_PA_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x5A //Відновлення допустимої активної споживаної потужності після підвищеної
+    case UCM_EV_PA_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x5B //Активна споживана потужність вище максимальної
+    case UCM_EV_PV_MAX_OK            : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x5C //Відновлення допустимої реактивної споживаної потужності після підвищеної
+    case UCM_EV_PV_MAX_OVER          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x5D //Реактивна спожива потужність вище максимальної
+    case UCM_EV_IDIFF_OK             : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x5E //Відновлення допустимого дифференціального струму
+    case UCM_EV_IDIFF_OVER           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x5F //Перевищення допустимого дифференціального струму
+    case UCM_EV_CLOCK_OK             : localEvntCode = ZBR_EVENT_HARDWARE          ; break;  //0x60 //Нормальний стан RTC відновлено
+    case UCM_EV_CLOCK_FAULT          : localEvntCode = ZBR_EVENT_HARDWARE          ; break;  //0x61 //RTC не встановлені
+    case UCM_EV_POWER_C_ON           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x62 //Увімкнення напруги L3
+    case UCM_EV_POWER_C_OFF          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x63 //Вимкнення напруги L3
+    case UCM_EV_POWER_B_ON           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x64 //Увімкнення напруги Фази В
+    case UCM_EV_POWER_B_OFF          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x65 //Вимкнення напруги Фази В
+    case UCM_EV_POWER_A_ON           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x66 //Увімкнення напруги L1
+    case UCM_EV_POWER_A_OFF          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM     ; break;  //0x67 //Вимкнення напруги L1
+    case UCM_EV_BAT_OK               : localEvntCode = ZBR_EVENT_HARDWARE          ; break;  //0x68 //Відновлення нормальної напруги батареї RTC
+    case UCM_EV_BAT_FAULT            : localEvntCode = ZBR_EVENT_HARDWARE          ; break;  //0x69 //Понижена напруга батареї RTC
+    case UCM_EV_CAL_OK               : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x6A //Параметри калібровки встановлені
+    case UCM_EV_CAL_FAULT            : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x6B //Калібровочні параметри втрачені
+    case UCM_EV_V_PAR_OK             : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;
+    case UCM_EV_V_PAR_FAULT          : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x6D //Заводські параметри втрачено
+    case UCM_EV_O_PAR_OK             : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x6E //Параметри встановлено
+    case UCM_EV_O_PAR_FAULT          : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x6F //Параметри втрачено
+    case UCM_EV_CHANGE_COR_TIME      : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x70 //Змінено параметри переходу на літній час
+    case UCM_EV_CMD_RELAY_2_ON       : localEvntCode = ZBR_EVENT_RELAY             ; break;   //0x71 //Включення другого реле
+    case UCM_EV_CMD_RELAY_2_OFF      : localEvntCode = ZBR_EVENT_RELAY             ; break;   //0x72 //Вимкнення другого реле
+    case UCM_EV_CRSSZERO_ENT1        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x73 //Перехід через 0 лічильника активної енергії по тарифу 1 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_ENT2        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x74 //Перехід через 0 лічильника активної енергії по тарифу 2 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_ENT3        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x75 //Перехід через 0 лічильника активної енергії по тарифу 3 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_ENT4        : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x76 //Перехід через 0 лічильника активної енергії по тарифу 4 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_VARi1       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x77 //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 1 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_VARi2       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x78 //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 2 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_VARi3       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;   //0x79 //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 3 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_VARi4       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x7A //Перехід через 0 лічильника позитивної реактивної енергії по тарифу 4 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_VARe1       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x7B //Перехід через 0 лічильника негативної реактивної енергії по тарифу 1 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_VARe2       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x7C //Перехід через 0 лічильника негативної реактивної енергії по тарифу 2 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_VARe3       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x7D //Перехід через 0 лічильника негативної реактивної енергії по тарифу 3 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_VARe4       : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0x7E //Перехід через 0 лічильника негативної реактивної енергії по тарифу 4 при досягненні 1000000.00 кВар
+    case UCM_EV_CALFLAG_SET          : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x7F //Калібровочний біт встановлено
+    case UCM_EV_CALFLAG_RESET        : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x80 //Калібровочний біт скинено
+    case UCM_EV_BAD_TEST_EEPROM      : localEvntCode = ZBR_EVENT_HARDWARE          ; break;   //0x81 //Тест EEPROM не пройшов
+    case UCM_EV_BAD_TEST_FRAM        : localEvntCode = ZBR_EVENT_HARDWARE          ; break;   //0x82 //Тест FRAM не пройшов
+    case UCM_EV_SET_NEW_SALDO        : localEvntCode = ZBR_EVENT_BILLING           ; break;  //0x83 //Отримана нова передоплата
+    case UCM_EV_SALDO_PARAM_BAD      : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x84 //Параметри сальдо втрачені
+    case UCM_EV_ACCPARAM_BAD         : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x85 //Акумуляційні параметри втрачено
+    case UCM_EV_ACCPARAM_EXT_BAD     : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x86 //Додаткові акумуляційні параметри втрачено
+    case UCM_EV_CALC_PERIOD_BAD      : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x87 //Дані розрахункових періодів втрачено
+    case UCM_EV_BLOCK_TARIF_BAD      : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x88 //Параметри блочних тарифів втрачено
+    case UCM_EV_CALIBR_PARAM_BAD     : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x89 //Значення калібровочних параметрів втрачено
+    case UCM_EV_WINTER_SUMMER_BAD    : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x8A //Значення параметру переходу на зимовий/літній час втрачено
+    case UCM_EV_OP_PARAM_BAD         : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x8B //Операторські параметри втрачено
+    case UCM_EV_OP_PARAM_EXT_BAD     : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x8C //Операторські параметри 2 втрачено
+    case UCM_EV_SALDO_EN_BAD         : localEvntCode = ZBR_EVENT_PARAM_FAULT       ; break;  //0x8D //Значення енергій для розрахунку сальдо втрачено
+    case UCM_EV_TIME_CORRECT         : localEvntCode = ZBR_EVENT_DATETIME_CORRECTED; break;  //0x8E //Коррекція часу
+    case UCM_EV_COEFF_TRANSF_CHANGE  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x8F //Змінено коефіцієнти трансформації
+    case UCM_EV_RELAY_HARD_BAD_OFF   : localEvntCode = ZBR_EVENT_RELAY             ; break;   //0x90 //Реле вимкнено механічно
+    case UCM_EV_RELAY_HARD_ON        : localEvntCode = ZBR_EVENT_RELAY             ; break;   //0x91 //Реле увімкнено після механічного впливу. Відновлено стан реле
+    case UCM_EV_RELAY_HARD_BAD_ON    : localEvntCode = ZBR_EVENT_RELAY             ; break;   //0x93 //Реле увімкнено механічно
+    case UCM_EV_RELAY_HARD_OFF       : localEvntCode = ZBR_EVENT_RELAY             ; break;   //0x94 //Реле вимкнено після механічного впливу. Відновлено стан реле
+    case UCM_EV_METER_TROUBLE        : localEvntCode = ZBR_EVENT_INTERNAL_ERROR    ; break;   //0x95 //Збій лічильника
+    case UCM_EV_CASE_KLEMA_OPEN      : localEvntCode = ZBR_EVENT_KLEMA_OPEN        ; break;   //0x96 //Клемна коробка лічильника відкрита
+    case UCM_EV_CASE_KLEMA_CLOSE     : localEvntCode = ZBR_EVENT_KLEMA_OPEN        ; break;   //0x97 //Клемна коробка лічильника закрита
+    case UCM_EV_CHANGE_TARIFF_TBL_2  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x98 //Тарифний план 2 змінено
+    case UCM_EV_CHANGE_TARIFF_TBL_3  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x99 //Тарифний план 3 змінено
+    case UCM_EV_CASE_MODULE_OPEN     : localEvntCode = ZBR_EVENT_MODULE_OPEN       ; break;  //0x9A //Відсік модуля лічильника відкрито
+    case UCM_EV_CASE_MODULE_CLOSE    : localEvntCode = ZBR_EVENT_MODULE_OPEN       ; break;  //0x9B //Відсік модуля лічильника закрито
+    case UCM_EV_SET_SALDO_PARAM      : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x9C //Параметри сальдо встановлено
+    case UCM_EV_POWER_OVER_RELAY_OFF : localEvntCode = ZBR_EVENT_RELAY             ; break;   //0x9D //Викнення реле після перевищення активної потужності (Версія ПЗ >= 302.15.001)
+    case UCM_EV_CHANGE_PARAM_CANAL1  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x9E //Змінено параметр профіля навантаження 1 (Версія ПЗ >= 302.17.001)
+    case UCM_EV_CHANGE_PARAM_CANAL2  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0x9F //Змінено парамтер профіля навантаження 2
+    case UCM_EV_CHANGE_PARAM_CANAL3  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0xA0 //Змінено параметр профіля навантаження 3
+    case UCM_EV_CHANGE_PARAM_CANAL4  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0xA1 //Змінено параметр профіля навантаження 4
+    case UCM_EV_CHANGE_PARAM_CANAL5  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0xA2 //Змінено параметр профіля навантаження 5
+    case UCM_EV_CHANGE_PARAM_CANAL6  : localEvntCode = ZBR_EVENT_CHANGED_PARAM     ; break;  //0xA3 //Змінено параметр профіля навантаження 6
+    case UCM_EV_CRSSZERO_EXP_ENT1    : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xA4 //Перехід через 0 лічильника активної експортної енергії по тарифу 1 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_EXP_ENT2    : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xA5 //Перехід через 0 лічильника активної експортної енергії по тарифу 2 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_EXP_ENT3    : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xA6 //Перехід через 0 лічильника активної експортної енергії по тарифу 3 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_EXP_ENT4    : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xA7 //Перехід через 0 лічильника активної експортної енергії по тарифу 4 при досягненні 1000000.00 кВт
+    case UCM_EV_CRSSZERO_EXP_VARi1   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xA8 //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 1 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_EXP_VARi2   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xA9 //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 2 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_EXP_VARi3   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xAA //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 3 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_EXP_VARi4   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xAB //Перехід через 0 лічильника реактивної позитивної експортної енергії по тарифу 4 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_EXP_VARe1   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;   //0xAC //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 1 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_EXP_VARe2   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xAD //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 2 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_EXP_VARe3   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xAE //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 3 при досягненні 1000000.00 кВар
+    case UCM_EV_CRSSZERO_EXP_VARe4   : localEvntCode = ZBR_EVENT_METERING_EV       ; break;  //0xAF //Перехід через 0 лічильника реактивної негативної експортної енергії по тарифу 4 при досягненні 1000000.00 кВар
+    case UCM_EV_EM_MAGNETIC_ON       : localEvntCode = ZBR_EVENT_MAGNET            ; break;   //0xB0 //Виявлено наявність впливу змінного магнітного поля
+    case UCM_EV_EM_MAGNETIC_OFF      : localEvntCode = ZBR_EVENT_MAGNET            ; break;   //0xB1 //Виявлено закінчення впливу змінного магнітного поля
 
         ///MTX1 Section
-    case UCM_EV_ENERGY_REG_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV      ; break;//  0x101 // Значення накоплюючих регістрів втрачено
+    case UCM_EV_ENERGY_REG_FAULT        : localEvntCode = ZBR_EVENT_METERING_EV    ; break;//  0x101 // Значення накоплюючих регістрів втрачено
 
-    case UCM_EV_4K_POWERSALDO_OK        : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//        0x150 // Перевещення потужності в режимі кредиту відсутнє
-    case UCM_EV_4K_POWERSALDO_OVER      : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//        0x151 // Перевищена потужність в режимі кредиту
-    case UCM_EV_4K_POWER_GOOD_DIO       : localEvntCode = ZBR_EVENT_HARDWARE         ; break;//        0x17E //Відсутній сигнал POWER_GOOD
+    case UCM_EV_4K_POWERSALDO_OK        : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM  ; break;//        0x150 // Перевещення потужності в режимі кредиту відсутнє
+    case UCM_EV_4K_POWERSALDO_OVER      : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM  ; break;//        0x151 // Перевищена потужність в режимі кредиту
+    case UCM_EV_4K_POWER_GOOD_DIO       : localEvntCode = ZBR_EVENT_HARDWARE       ; break;//        0x17E //Відсутній сигнал POWER_GOOD
 
-    case UCM_EV_4K_CURRENT_UNEQUIL_FAULT: localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//   0x1B2 // Виявлено нерівність струмів
-    case UCM_EV_4K_CURRENT_UNEQUIL_OK   : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//   0x1B3 // Нерівність струмів відсутня
-    case UCM_EV_4K_BIPOLAR_POWER_FAULT  : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//   0x1B4 // Виявлені різнополярні потужності у фазі та нейтралі
-    case UCM_EV_4K_BIPOLAR_POWER_OK     : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//   0x1B5 // Різнополярні потужності у фазі та нейтралі відсутні
-    case UCM_EV_4K_RESET_EM_FLAG        : localEvntCode = ZBR_EVENT_MAGNET           ; break;//   0x1B6 // Скинуто екран ел.магнітного впливу
-    case UCM_EV_4K_RESET_MAGN_FLAG      : localEvntCode = ZBR_EVENT_MAGNET           ; break;//    0x1B7 // Скинуто екрат магнітного впливу
+    case UCM_EV_4K_CURRENT_UNEQUIL_FAULT: localEvntCode = ZBR_EVENT_VOLTAGE_PARAM  ; break;//   0x1B2 // Виявлено нерівність струмів
+    case UCM_EV_4K_CURRENT_UNEQUIL_OK   : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM  ; break;//   0x1B3 // Нерівність струмів відсутня
+    case UCM_EV_4K_BIPOLAR_POWER_FAULT  : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM  ; break;//   0x1B4 // Виявлені різнополярні потужності у фазі та нейтралі
+    case UCM_EV_4K_BIPOLAR_POWER_OK     : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM  ; break;//   0x1B5 // Різнополярні потужності у фазі та нейтралі відсутні
+    case UCM_EV_4K_RESET_EM_FLAG        : localEvntCode = ZBR_EVENT_MAGNET         ; break;//   0x1B6 // Скинуто екран ел.магнітного впливу
+    case UCM_EV_4K_RESET_MAGN_FLAG      : localEvntCode = ZBR_EVENT_MAGNET         ; break;//    0x1B7 // Скинуто екрат магнітного впливу
 
 
         ///Global section                         +0x200
         //BUS
-    case UCM_EV_BUS_I2C_FAULT           : localEvntCode = ZBR_EVENT_HARDWARE        ; break;//   0x200 //
+    case UCM_EV_BUS_I2C_FAULT           : localEvntCode = ZBR_EVENT_HARDWARE       ; break;//   0x200 //
 
 
         //Meter STATE OK
-    case UCM_EV_MSTATE_DIAGNOSTIC_OK    : localEvntCode = ZBR_EVENT_HARDWARE        ; break;//     0x300 //
+    case UCM_EV_MSTATE_DIAGNOSTIC_OK    : localEvntCode = ZBR_EVENT_HARDWARE       ; break;//     0x300 //
 
-    case UCM_EV_RELAY_OFF_HIGH_VLTG     : localEvntCode = ZBR_EVENT_RELAY           ; break; //     0x402 //Реле вимкнено по перевищенню напруги
-    case UCM_EV_RELAY_OFF_LOW_VLTG      : localEvntCode = ZBR_EVENT_RELAY           ; break; //         0x403 //Реле вимкнено по зниженню напруги
-    case UCM_EV_RELAY_OFF_HACKER        : localEvntCode = ZBR_EVENT_RELAY           ; break; //          0x404 //Реле вимкнено із-за несанкціонованого доступу до зажимної плати лічильника
+    case UCM_EV_RELAY_OFF_HIGH_VLTG     : localEvntCode = ZBR_EVENT_RELAY          ; break; //     0x402 //Реле вимкнено по перевищенню напруги
+    case UCM_EV_RELAY_OFF_LOW_VLTG      : localEvntCode = ZBR_EVENT_RELAY          ; break; //         0x403 //Реле вимкнено по зниженню напруги
+    case UCM_EV_RELAY_OFF_HACKER        : localEvntCode = ZBR_EVENT_RELAY          ; break; //          0x404 //Реле вимкнено із-за несанкціонованого доступу до зажимної плати лічильника
 
         //clear data
-    case UCM_EV_CLEAR_LOADPROFILEDATA   : localEvntCode = ZBR_EVENT_METERING_EV     ; break;//        0x500 //
+    case UCM_EV_CLEAR_LOADPROFILEDATA   : localEvntCode = ZBR_EVENT_METERING_EV    ; break;//        0x500 //
 
 
 
-    case UCM_EV_MSTATE_POWERON          : localEvntCode = ZBR_EVENT_METER_ONOFF      ; break; //             0x301 //
-    case UCM_EV_MSTATE_POWEROFF         : localEvntCode = ZBR_EVENT_METER_ONOFF      ; break; //             0x302 //
+    case UCM_EV_MSTATE_POWERON          : localEvntCode = ZBR_EVENT_METER_ONOFF     ; break; //             0x301 //
+    case UCM_EV_MSTATE_POWEROFF         : localEvntCode = ZBR_EVENT_METER_ONOFF     ; break; //             0x302 //
 
         //Події що фіксуюють лише початок зміни стану
-    case UCM_EV_VA_MIN_UNDER_SS         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break; //             0x600 //Напруга L1 нище порогу мінімальної напруги, не очікую на нормальну
-    case UCM_EV_VB_MIN_UNDER_SS         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break; //             0x601 //Напруга L2 нище порогу мінімальної напруги, не очікую на нормальну
-    case UCM_EV_VC_MIN_UNDER_SS         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break; //             0x602 //Напруга L3 нище порогу мінімальної напруги, не очікую на нормальну
+    case UCM_EV_VA_MIN_UNDER_SS         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break; //             0x600 //Напруга L1 нище порогу мінімальної напруги, не очікую на нормальну
+    case UCM_EV_VB_MIN_UNDER_SS         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break; //             0x601 //Напруга L2 нище порогу мінімальної напруги, не очікую на нормальну
+    case UCM_EV_VC_MIN_UNDER_SS         : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break; //             0x602 //Напруга L3 нище порогу мінімальної напруги, не очікую на нормальну
 
-    case UCM_EV_VA_MAX_OVER_SS          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break; //              0x603 //напруга L1 вище порогу максимальної напруги, не очікую на нормальну
-    case UCM_EV_VB_MAX_OVER_SS          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break; //             0x604 //напруга L2 вище порогу максимальної напруги, не очікую на нормальну
-    case UCM_EV_VC_MAX_OVER_SS          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break; //             0x605 //напруга L3 вище порогу максимальної напруги, не очікую на нормальну
-    case UCM_EV_CASE_OPEN_SS            : localEvntCode = ZBR_EVENT_METER_OPEN       ; break; //            0x606 //Корпус лічильника відкритий, не очікую на закриття
-    case UCM_EV_CASE_KLEMA_OPEN_SS      : localEvntCode = ZBR_EVENT_KLEMA_OPEN       ; break; //         0x607 //Клемна коробка лічильника відкрита, не очікую на закриття
+    case UCM_EV_VA_MAX_OVER_SS          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break; //              0x603 //напруга L1 вище порогу максимальної напруги, не очікую на нормальну
+    case UCM_EV_VB_MAX_OVER_SS          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break; //             0x604 //напруга L2 вище порогу максимальної напруги, не очікую на нормальну
+    case UCM_EV_VC_MAX_OVER_SS          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break; //             0x605 //напруга L3 вище порогу максимальної напруги, не очікую на нормальну
+    case UCM_EV_CASE_OPEN_SS            : localEvntCode = ZBR_EVENT_METER_OPEN      ; break; //            0x606 //Корпус лічильника відкритий, не очікую на закриття
+    case UCM_EV_CASE_KLEMA_OPEN_SS      : localEvntCode = ZBR_EVENT_KLEMA_OPEN      ; break; //         0x607 //Клемна коробка лічильника відкрита, не очікую на закриття
 
-    case UCM_EV_VA_ON_SS                : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//                    0x608 //Є напруга L1
-    case UCM_EV_VB_ON_SS                : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//                    0x609 //Є напруга L2
-    case UCM_EV_VC_ON_SS                : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//                   0x60A //Є напруга L3
+    case UCM_EV_VA_ON_SS                : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//                    0x608 //Є напруга L1
+    case UCM_EV_VB_ON_SS                : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//                    0x609 //Є напруга L2
+    case UCM_EV_VC_ON_SS                : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//                   0x60A //Є напруга L3
+
+
+    case UCM_EV_VA_OFF_SS               : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//                    0x60B //Відсутня напруга L1
+    case UCM_EV_VB_OFF_SS               : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//                    0x60C //Відсутня напруга L2
+    case UCM_EV_VC_OFF_SS               : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//                    0x60D //Відсутня напруга L3
+
+    case UCM_EV_WRONG_PHASE_SS          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//               0x60E //Зворотня послідовність фаз
+
+        ///load section
+    case UCM_EV_P_MAX_OVER_SS           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break;//                0x660 //Потужність вище максимальної
+
+
+        ///sensors section
+    case UCM_EV_MAGNETIC_ON_SS          : localEvntCode = ZBR_EVENT_MAGNET          ; break;//               0x712 //виявлено наявність впливу постійного магнітного поля, не очікую на закінчення впливу
+
+        ///climate section
+    case UCM_EV_T_NNORMAL_SS            : localEvntCode = ZBR_EVENT_CLIMAT          ; break;//                 0x813 //Температура перевищує поріг допустимих значень, не очікую на нормалізацію
+
+        ///accsess & params
+    case UCM_EV_ACCESS_LOCKED_SS        : localEvntCode = ZBR_EVENT_ACCESS          ; break;//             0x914 //доступ закритий із-за помилки ключа доступу,не очікую на відкриття
+    case UCM_EV_MAGIC_BUTTON_PRESSED_SS : localEvntCode = ZBR_EVENT_ACCESS          ; break;//      0x915 //натиснута кнопка, дозволу запису параметрів
+
+
+
 
         //set new meter settings
     case UCM_EV_SET_PARAM               : localEvntCode = ZBR_EVENT_CHANGED_PARAM   ; break; //                0x1000 // узагальнена подія змін параметрів лічильника, параметризація.
@@ -594,51 +618,51 @@ quint8 MeterPluginHelper::ucmEvent2groupCode(const quint32 &ucmEventCode)
 
         ///STANDARD EVENT LOG
         //RESET AND SUPPLY DIRUPTIONS   +0x2000
-    case UCM_EV_STANDARD_RESET_WTH_DATA_LOSS        : localEvntCode = ZBR_EVENT_PARAM_FAULT     ; break; //   0x2001
-    case UCM_EV_STANDARD_RESET_WTHOUT_DATA_LOSS     : localEvntCode = ZBR_EVENT_PARAM_FAULT     ; break; //        0x2002
-//    case UCM_EV_STANDARD_POWER_OUTAGES              : localEvntCode = ZBR_EVENT_METER_ONOFF   ; break; //           0x2003
-    case UCM_EV_STANDARD_NO_CONNECTION_2_N          : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM   ; break; //           0x2004
+    case UCM_EV_STANDARD_RESET_WTH_DATA_LOSS            : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break; //   0x2001
+    case UCM_EV_STANDARD_RESET_WTHOUT_DATA_LOSS         : localEvntCode = ZBR_EVENT_PARAM_FAULT         ; break; //        0x2002
+//    case UCM_EV_STANDARD_POWER_OUTAGES              : localEvntCode = ZBR_EVENT_METER_ONOFF           ; break; //           0x2003
+    case UCM_EV_STANDARD_NO_CONNECTION_2_N              : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break; //           0x2004
 
         //CHANGE OF PARAMETERS
-    case UCM_EV_STANDARD_CHNG_PRMTRS_REGISTER       : localEvntCode = ZBR_EVENT_CHANGED_PARAM    ; break; //          0x201E //30
-    case UCM_EV_STANDARD_CHNG_PRMTRS_COMM_PORT      : localEvntCode = ZBR_EVENT_CHANGED_PARAM    ; break; //          0x201F //31
+    case UCM_EV_STANDARD_CHNG_PRMTRS_REGISTER           : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //          0x201E //30
+    case UCM_EV_STANDARD_CHNG_PRMTRS_COMM_PORT          : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //          0x201F //31
         //case UCM_EV_STANDARD_CHNG_PASSWD_2_READ              UCM_EV_CHANGE_ACCESS_KEY_3// 0x2020 //32
         //case UCM_EV_STANDARD_CHNG_PASSWD_4_PRM               UCM_EV_CHANGE_ACCESS_KEY_2//  0x2021 //33
         //case UCM_EV_STANDARD_CHNG_PASSWD_4_FIRMWR            UCM_EV_CHANGE_ACCESS_KEY_1//  0x2022 //34
 
         //case UCM_EV_STANDARD_CHNG_TIME_OF_SSN_TRANSTN        UCM_EV_CHANGE_COR_TIME// 0x2024 //36
-    case UCM_EV_STANDARD_CHNG_MIN_TIME_BTWN_INVOICN : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //    0x2025 //37
-    case UCM_EV_STANDARD_CHNG_PRD_4_LOADPROFILE     : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //      0x2026 //38
-    case UCM_EV_STANDARD_CHNG_SYNC                  : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //                0x2027 //39
-    case UCM_EV_STANDARD_CHNG_PROGRAM_NAME          : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //            0x2028 //40
+    case UCM_EV_STANDARD_CHNG_MIN_TIME_BTWN_INVOICN     : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //    0x2025 //37
+    case UCM_EV_STANDARD_CHNG_PRD_4_LOADPROFILE         : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //      0x2026 //38
+    case UCM_EV_STANDARD_CHNG_SYNC                      : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //                0x2027 //39
+    case UCM_EV_STANDARD_CHNG_PROGRAM_NAME              : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //            0x2028 //40
 
 
-    case UCM_EV_ACIN1_NO_VOLTAGE                    : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//                  0x2032//50 - ACIN1 state changed to on
-    case UCM_EV_ACIN1_VOLTAGE                       : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//                  0x2033//51 - ACIN1 state changed to off
-    case UCM_EV_ACIN2_NO_VOLTAGE                    : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//                  0x2034//52 - ACIN2 state changed to on
-    case UCM_EV_ACIN2_VOLTAGE                       : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM    ; break;//                 0x2035//53 - ACIN2 changed to off
+    case UCM_EV_ACIN1_NO_VOLTAGE                        : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;//                  0x2032//50 - ACIN1 state changed to on
+    case UCM_EV_ACIN1_VOLTAGE                           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;//                  0x2033//51 - ACIN1 state changed to off
+    case UCM_EV_ACIN2_NO_VOLTAGE                        : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;//                  0x2034//52 - ACIN2 state changed to on
+    case UCM_EV_ACIN2_VOLTAGE                           : localEvntCode = ZBR_EVENT_VOLTAGE_PARAM       ; break;//                 0x2035//53 - ACIN2 changed to off
 
         //CHANGING PARAMETERS OF PWR QUALITY SETT
-    case UCM_EV_STANDARD_CHNG_DURTN_OF_VLTG_SGS_SWLS    : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //   0x205A //90
-    case UCM_EV_STANDARD_CHNG_LIMIT_OF_PWR_OUTAGE       : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //    0x205B //91
-    case UCM_EV_STANDARD_CHNG_RATED_VOLTAGE             : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //     0x205C //92
-    case UCM_EV_STANDARD_CHNG_UPPR_LIMIT_PERMSSBL_VLTG  : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //  0x205D //93
-    case UCM_EV_STANDARD_CHNG_LOWR_LIMIT_PERMSSBL_VLTG  : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; // 0x205E //94
-    case UCM_EV_STANDARD_CHNG_LACK_OF_VTG               : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //            0x205F //95
+    case UCM_EV_STANDARD_CHNG_DURTN_OF_VLTG_SGS_SWLS    : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //   0x205A //90
+    case UCM_EV_STANDARD_CHNG_LIMIT_OF_PWR_OUTAGE       : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //    0x205B //91
+    case UCM_EV_STANDARD_CHNG_RATED_VOLTAGE             : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //     0x205C //92
+    case UCM_EV_STANDARD_CHNG_UPPR_LIMIT_PERMSSBL_VLTG  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //  0x205D //93
+    case UCM_EV_STANDARD_CHNG_LOWR_LIMIT_PERMSSBL_VLTG  : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; // 0x205E //94
+    case UCM_EV_STANDARD_CHNG_LACK_OF_VTG               : localEvntCode = ZBR_EVENT_CHANGED_PARAM       ; break; //            0x205F //95
 
         // RESET
-    case UCM_EV_STANDARD_PASSWRD_RESET              : localEvntCode = ZBR_EVENT_PARAM_FAULT ; break; //           0x2060 //96
-    case UCM_EV_STANDARD_ALL_2_FACTORY_SETT         : localEvntCode = ZBR_EVENT_PARAM_FAULT ; break; //           0x2061 //97
+    case UCM_EV_STANDARD_PASSWRD_RESET                  : localEvntCode = ZBR_EVENT_PARAM_FAULT     ; break; //           0x2060 //96
+    case UCM_EV_STANDARD_ALL_2_FACTORY_SETT             : localEvntCode = ZBR_EVENT_PARAM_FAULT ; break; //           0x2061 //97
 
 
         ///FIRMWARE UPDATE LOG
         //UPDATE
-    case UCM_EV_FIRMWARE_CHNG_PROGRAM               : localEvntCode = ZBR_EVENT_CHANGED_PARAM; break; //            0x2501
+    case UCM_EV_FIRMWARE_CHNG_PROGRAM                   : localEvntCode = ZBR_EVENT_CHANGED_PARAM; break; //            0x2501
 
 
         ///CLOCK SYNC LOG
         //CLOCK SYNC
-    case UCM_EV_CLOCK_SYNC                          : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //                  0x2601
+    case UCM_EV_CLOCK_SYNC                              : localEvntCode = ZBR_EVENT_CHANGED_PARAM ; break; //                  0x2601
 
 
 
