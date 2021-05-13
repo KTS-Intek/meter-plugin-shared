@@ -32,9 +32,15 @@ public:
 
 
 
+    static void insertEvnt2hashExt(QVariantHash &hashTmpData, const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)  ;
+
+    static void insertEvnt2hash(QVariantHash &hashTmpData, const quint16 &evnt, const QString comment)  ;
+
+    static QString insertMeterJourlnalEvnt2hashTmp(const QVariantHash &hashTmpData, QVariantHash &hash, const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)  ;
 
 
      static QVariantHash addEvnt2hash(const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)  ;
+
 
      static QString nextEvntName(const QVariantHash &hashTmpData)  ;
 

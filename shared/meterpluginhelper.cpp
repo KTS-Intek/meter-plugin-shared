@@ -7,6 +7,7 @@
 
 
 #include "ucmetereventcodes.h"
+#include "definedpollcodes.h"
 
 #define DEF_TARIFF_NUMB     3
 
@@ -15,6 +16,26 @@
 MeterPluginHelper::MeterPluginHelper(QObject *parent) : QObject(parent)
 {
 
+}
+//-----------------------------------------------------------------------------------
+void MeterPluginHelper::insertEvnt2hashExt(QVariantHash &hashTmpData, const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)
+{
+    hashTmpData.insert(nextMatildaEvntName(hashTmpData), addEvnt2hash(evnt, evntDtInUTC, comment));
+
+}
+//-----------------------------------------------------------------------------------
+void MeterPluginHelper::insertEvnt2hash(QVariantHash &hashTmpData, const quint16 &evnt, const QString comment)
+{//it inserts mev event Matilda event
+    insertEvnt2hashExt(hashTmpData, evnt, QDateTime::currentDateTimeUtc(), comment);
+}
+//-----------------------------------------------------------------------------------
+QString MeterPluginHelper::insertMeterJourlnalEvnt2hashTmp(const QVariantHash &hashTmpData, QVariantHash &hash, const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)
+{
+//hash.insert(MeterPluginHelper::nextEvntName(hashTmpData),   MeterPluginHelper::addEvnt2hash(evntGroup.at(jj), dtpwr.toUTC(), str.at(jj)));
+    const QString key = nextEvntName(hashTmpData, hash);
+    hash.insert(key, addEvnt2hash(evnt, evntDtInUTC, comment));
+
+    return key;
 }
 
 
