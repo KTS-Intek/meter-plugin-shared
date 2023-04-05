@@ -11,6 +11,10 @@
 
 #define DEF_TARIFF_NUMB     3
 
+#define DEF_DTSN_SMART_CHECK     604800000 //week
+//#define DEF_DTSN_SMART_CHECK_SMLL  120000 //2 minutes
+
+
 
 //-----------------------------------------------------------------------------------
 MeterPluginHelper::MeterPluginHelper(QObject *parent) : QObject(parent)
@@ -382,10 +386,10 @@ qint32 MeterPluginHelper::secsTo25hour(QDateTime dateTimeL)
     return 0;
 }
 //-----------------------------------------------------------------------------------
-QString MeterPluginHelper::prettyMess(const QString &mess, const QString &hexDump, QString &lastErrorStr, QString &lastWarning, const bool &isErr)
+QString MeterPluginHelper::prettyMess(const QString &message, const QString &hexDump, QString &lastErrorStr, QString &lastWarning, const bool &isErr)
 {
     ErrsStrct e(lastErrorStr, lastWarning, isErr);
-    const QString s = prettyMess(mess, hexDump, isErr, e);
+    const QString s = prettyMess(message, hexDump, isErr, e);
     if(isErr)
         lastErrorStr = e.lastErrorStr;
     else
@@ -393,16 +397,16 @@ QString MeterPluginHelper::prettyMess(const QString &mess, const QString &hexDum
     return s;
 }
 //-----------------------------------------------------------------------------------
-QString MeterPluginHelper::prettyMess(const QString &mess, const QString &hexDump, const bool &isErr, ErrsStrct &errwarn)
+QString MeterPluginHelper::prettyMess(const QString &message, const QString &hexDump, const bool &isErr, ErrsStrct &errwarn)
 {
-    const QString messfull = QString("%1 %2%3").arg(QDateTime::currentDateTime().toString("hh:mm:ss")).arg(mess).arg(hexDump );
+    const QString messagef = QString("%1 %2%3").arg(QDateTime::currentDateTime().toString("hh:mm:ss")).arg(message).arg(hexDump );
 
     if(isErr)
-        errwarn.lastErrorStr = messfull;
+        errwarn.lastErrorStr = messagef;
     else
-        errwarn.lastWarning = messfull;
+        errwarn.lastWarning = messagef;
     errwarn.lastIsErr = isErr;
-    return messfull;
+    return messagef;
 }
 
 //-----------------------------------------------------------------------------------
@@ -902,6 +906,8 @@ bool MeterPluginHelper::isTime4updateScheduleHConstData(const QVariantHash &hash
     return isTime4updateSchedule(hashConstData.value("sleepprofile").toHash(), currentMeterSchedule);
 }
 
+//-----------------------------------------------------------------------------------
+
 void MeterPluginHelper::addRelayStatus(QVariantHash &hashTmpData, const int &relayStts, const bool &isMain)
 {
     if(isMain){
@@ -912,10 +918,96 @@ void MeterPluginHelper::addRelayStatus(QVariantHash &hashTmpData, const int &rel
         hashTmpData.insert("relay_1", relayStts);
 }
 
+//-----------------------------------------------------------------------------------
+
 void MeterPluginHelper::addRelayStatusAll(QVariantHash &hashTmpData, const int &mainstts, const int &secondarystts)
 {
     addRelayStatus(hashTmpData, mainstts, true);
     addRelayStatus(hashTmpData, secondarystts, false);
+}
+
+//-----------------------------------------------------------------------------------
+
+QString MeterPluginHelper::getUniqueMeterKey(const QVariantHash &hashConstData)
+{
+    QStringList out;
+    const QStringList lk = QString("model SN NI ModemNI vrsn").split(" ",
+                                                                 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                                                                     Qt::SkipEmptyParts
+                                                                 #else
+                                                                     QString::SkipEmptyParts
+                                                                 #endif
+                                                                     );
+    for(int i = 0, imax = lk.size(); i < imax; i++){
+        if(hashConstData.value(lk.at(i)).toString().isEmpty())
+            return QString();
+        out.append(hashConstData.value(lk.at(i)).toString());
+    }
+    return out.join("\r\n");
+}
+
+//-----------------------------------------------------------------------------------
+
+bool MeterPluginHelper::isTime2smartDtSnCheck(const QVariantHash &hashConstData)
+{
+    const auto akey = getUniqueMeterKey(hashConstData);
+    if(akey.isEmpty())
+        return true;
+    return (qAbs(hSmartCache.value(akey).lastMsec - QDateTime::currentMSecsSinceEpoch()) >= DEF_DTSN_SMART_CHECK);
+}
+
+//-----------------------------------------------------------------------------------
+
+bool MeterPluginHelper::isTime2smartDtSnCheckExt(const QVariantHash &hashConstData, QVariantHash &hashTmpData)
+{
+    //    hashConstData.insert("ignorePrevData", pollDt.ignorePrevData); whast to do with this???
+
+    const auto akey = getUniqueMeterKey(hashConstData);
+    if(akey.isEmpty())
+        return true;
+    auto ameter = hSmartCache.value(akey);
+    if(qAbs(ameter.lastMsec - QDateTime::currentMSecsSinceEpoch()) < DEF_DTSN_SMART_CHECK && !ameter.meterIdentifier.isEmpty()){
+        //do not check DT and SN
+        if(hashTmpData.value("vrsn").toString().isEmpty()){
+            hashTmpData.insert("vrsn", hashConstData.value("vrsn").toString());
+        }
+        if(hashTmpData.value("SN").toString().isEmpty()){
+            hashTmpData.insert("SN", hashConstData.value("SN").toString());
+        }
+//        if(!hashTmpData.contains("IEC62056_DTgood").toBool())
+//            hashTmpData.insert("IEC62056_DTgood", true);
+
+        hashTmpData.insert("lastMeterDateTime", QDateTime::currentDateTime());
+        hashTmpData.insert("meterIdentifier", ameter.meterIdentifier);
+        hashTmpData.insert("ignoreDtSnCheck", true);
+
+        ameter.counter++;
+        hSmartCache.insert(akey, ameter);
+        return false;
+    }
+    return true;
+}
+
+//-----------------------------------------------------------------------------------
+
+void MeterPluginHelper::updateTime2smartDtSnCheck(const QVariantHash &hashConstData, const QByteArray &meterIdentifier, const QVariantHash &hashTmpData)
+{
+    if(meterIdentifier.isEmpty())
+        return;
+
+    if(!hashTmpData.value("ignoreDtSnCheck").toBool())
+        return;
+
+    const auto akey = getUniqueMeterKey(hashConstData);
+    if(akey.isEmpty())
+        return;
+    auto ameter = hSmartCache.value(akey);
+    ameter.lastMsec = QDateTime::currentMSecsSinceEpoch();
+    ameter.counter = 0;
+    ameter.meterIdentifier = meterIdentifier;
+    hSmartCache.insert(akey, ameter);
+
+
 }
 
 //-----------------------------------------------------------------------------------

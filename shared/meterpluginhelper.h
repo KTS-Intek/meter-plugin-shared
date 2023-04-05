@@ -29,7 +29,15 @@ class MeterPluginHelper : public QObject
 public:
     explicit MeterPluginHelper(QObject *parent = nullptr);
 
-
+    struct OneSmartCacheMeterRecord
+    {
+        qint64 lastMsec;
+        quint32 counter;
+//        quint32 counterIgnrPrevData;
+        QByteArray meterIdentifier;
+        OneSmartCacheMeterRecord() : lastMsec(0), counter(0) {}
+    };
+    QHash<QString, OneSmartCacheMeterRecord> hSmartCache;
 
 
     static void insertEvnt2hashExt(QVariantHash &hashTmpData, const quint16 &evnt, const QDateTime &evntDtInUTC, const QString comment)  ;
@@ -76,9 +84,9 @@ public:
 
      static qint32 secsTo25hour(QDateTime dateTimeL);
 
-     static QString prettyMess(const QString &mess, const QString &hexDump, QString &lastErrorStr, QString &lastWarning, const bool &isErr);
+     static QString prettyMess(const QString &message, const QString &hexDump, QString &lastErrorStr, QString &lastWarning, const bool &isErr);
 
-     static QString prettyMess(const QString &mess, const QString &hexDump, const bool &isErr, ErrsStrct &errwarn);
+     static QString prettyMess(const QString &message, const QString &hexDump, const bool &isErr, ErrsStrct &errwarn);
 
 
 
@@ -111,6 +119,14 @@ public:
 
      static void addRelayStatusAll(QVariantHash &hashTmpData, const int &mainstts, const int &secondarystts);
 
+     //smart dt and SN check
+     QString getUniqueMeterKey(const QVariantHash &hashConstData);
+
+     bool isTime2smartDtSnCheck(const QVariantHash &hashConstData);
+
+     bool isTime2smartDtSnCheckExt(const QVariantHash &hashConstData, QVariantHash &hashTmpData);
+
+     void updateTime2smartDtSnCheck(const QVariantHash &hashConstData, const QByteArray &meterIdentifier, const QVariantHash &hashTmpData);
 
 signals:
 
