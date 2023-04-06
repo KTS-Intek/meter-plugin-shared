@@ -138,7 +138,23 @@ QStringList MeterPluginHelper::listFromArr(const QByteArray &inArr, const QByteA
         if(s.right(rLen) == rightSymbol)
             s.chop(1);
     }
-    return s.split(separ, skipEmpty ? QString::SkipEmptyParts : QString::KeepEmptyParts);
+    return s.split(separ, skipEmpty ?
+                                  #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                                      Qt::SkipEmptyParts
+                                  #else
+                                      QString::SkipEmptyParts
+                                  #endif
+
+                   :
+                                  #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                                      Qt::SkipEmptyParts
+                                  #else
+                                      QString::SkipEmptyParts
+                                  #endif
+
+                   );
+
+//                   skipEmpty ? QString::SkipEmptyParts : QString::KeepEmptyParts);
 
 }
 //-----------------------------------------------------------------------------------
@@ -259,12 +275,24 @@ jObj["DR2"] = "T1{08:00-11:00, 20:00-23:00}; T2{07:00-08:00, 11:00-20:00, 23:00-
 
 
         if(!seasonDR.isEmpty()){
-            QStringList list = seasonDR.split(",", QString::SkipEmptyParts);
+            QStringList list = seasonDR.split(",",
+                                  #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                                      Qt::SkipEmptyParts
+                                  #else
+                                      QString::SkipEmptyParts
+                                  #endif
+                                      );
             if(list.size() == 7 && list.removeDuplicates() > 5){
                 seasonDR = list.first();
 
             }else{
-                list = seasonDR.split(",", QString::SkipEmptyParts);
+                list = seasonDR.split(",",
+                      #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                          Qt::SkipEmptyParts
+                      #else
+                          QString::SkipEmptyParts
+                      #endif
+                          );
                 list.append(list.takeFirst());
                 seasonDR = list.join(",");
             }
@@ -786,7 +814,13 @@ void MeterPluginHelper::copyHash2hash(const QVariantHash &src, QVariantHash &has
 //-----------------------------------------------------------------------------------
 void MeterPluginHelper::copyHash2hashKeys(const QVariantHash &src, QVariantHash &hashDest, const QString &startWithLine, const QString &separ)
 {
-    const QStringList l = startWithLine.split(separ, QString::SkipEmptyParts);
+    const QStringList l = startWithLine.split(separ,
+                                          #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                                              Qt::SkipEmptyParts
+                                          #else
+                                              QString::SkipEmptyParts
+                                          #endif
+                                              );
     const QList<QString> k = src.keys();
 
     const int lMax = l.size();
@@ -883,7 +917,13 @@ int MeterPluginHelper::getTariffCount(const QVariantHash &hashConstData)
 
 bool MeterPluginHelper::isTime4updateSchedule(const QVariantHash &hashConstDataSchedule, const QVariantHash &currentMeterSchedule)
 {
-    const QStringList lk = QString("dom dow hour minute actvt").split(" ", QString::SkipEmptyParts);// waterSleepParamKeys();
+    const QStringList lk = QString("dom dow hour minute actvt").split(" ",
+                                                                  #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                                                                      Qt::SkipEmptyParts
+                                                                  #else
+                                                                      QString::SkipEmptyParts
+                                                                  #endif
+                                                                      );// waterSleepParamKeys();
     for(int i = 0, imax = lk.size(); i < imax; i++){
         if(hashConstDataSchedule.value(lk.at(i)).toString() != currentMeterSchedule.value(lk.at(i)).toString() || currentMeterSchedule.value(lk.at(i)).toString().isEmpty()){
             bool okl, okr;
@@ -962,6 +1002,9 @@ bool MeterPluginHelper::isTime2smartDtSnCheckExt(const QVariantHash &hashConstDa
 {
     //    hashConstData.insert("ignorePrevData", pollDt.ignorePrevData); whast to do with this???
 
+    if(hashTmpData.contains("ignoreDtSnCheck"))
+        return !hashTmpData.value("ignoreDtSnCheck").toBool();
+
     const auto akey = getUniqueMeterKey(hashConstData);
     if(akey.isEmpty())
         return true;
@@ -995,15 +1038,23 @@ void MeterPluginHelper::updateTime2smartDtSnCheck(const QVariantHash &hashConstD
     if(meterIdentifier.isEmpty())
         return;
 
-    if(!hashTmpData.value("ignoreDtSnCheck").toBool())
-        return;
+
 
     const auto akey = getUniqueMeterKey(hashConstData);
     if(akey.isEmpty())
         return;
     auto ameter = hSmartCache.value(akey);
-    ameter.lastMsec = QDateTime::currentMSecsSinceEpoch();
-    ameter.counter = 0;
+
+    if(hashTmpData.value("ignoreDtSnCheck").toBool()){
+        if(meterIdentifier == ameter.meterIdentifier)
+            return; //do not update lastMsec when ignoreDtSnCheck is true
+
+    }else{
+        ameter.lastMsec = QDateTime::currentMSecsSinceEpoch();
+        ameter.counter = 0;
+    }
+
+
     ameter.meterIdentifier = meterIdentifier;
     hSmartCache.insert(akey, ameter);
 
