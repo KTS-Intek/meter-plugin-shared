@@ -237,7 +237,13 @@ QString FindEmptyDate::dtStr4hashTmp(const QDateTime &dtPollIndx, const quint8 &
 QStringList FindEmptyDate::valStr2quadrants(const QString &valStr)
 {
     //[xxx.xx];[xxx.xx]
-    const QStringList l = valStr.mid(1, valStr.length() - 2).split("];[", QString::SkipEmptyParts);
+    const QStringList l = valStr.mid(1, valStr.length() - 2).split("];[",
+                                                               #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
+                                                                   Qt::SkipEmptyParts
+                                                               #else
+                                                                   QString::SkipEmptyParts
+                                                               #endif
+                                                                   );
     return (l.size() == 2) ? l : QStringList();
 }
 
@@ -333,7 +339,8 @@ ListEmptyVals FindEmptyDate::getEmptyDates4endOfDay(QVariantHash &hashTmpData, c
 
 
     }
-    if(l.isEmpty()){
+    if(l.isEmpty() && hashConstData.value("verboseMode").toBool()){
+
         qDebug() << "FindEmptyDate::getEmptyDates4endOfDay no data " << hashConstData.value("ModemNI").toString() << listValKeys << maxDayMonthAgo << hasQuadrants;
 
     }

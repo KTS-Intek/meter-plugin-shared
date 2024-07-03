@@ -853,7 +853,7 @@ bool MeterPluginHelper::getCorrDateTime(QVariantHash &hashTmpData, const QVarian
 //    const bool lockWriteDt = (hashConstData.value("memo").toString().startsWith("DNWT ") || hashConstData.value("dta", false).toBool());
 //    const bool corDTallow = lockWriteDt ? false : hashConstData.value("corDTallow", false).toBool();
 
-    return getCorrDateTimeExt(true, hashTmpData, hashConstData, meterDateTime, err, warn, mtdEvnt);
+    return getCorrDateTimeExt(false, hashTmpData, hashConstData, meterDateTime, err, warn, mtdEvnt);
 }
 
 //-----------------------------------------------------------------------------------
